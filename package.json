@@ -1,0 +1,22 @@
+{
+  "name": "shellmate",
+  "version": "0.1.0",
+  "description": "A cross-platform AI-assisted command line companion.",
+  "license": "MIT",
+  "bin": {
+    "shellmate": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node src/cli.ts"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
