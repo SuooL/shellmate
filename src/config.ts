@@ -15,8 +15,7 @@ const configSchema = z.object({
   providers: z.record(providerSchema).optional(),
   safety: z
     .object({
-      warnOnDangerousCommands: z.boolean().optional(),
-      blockOnVeryDangerous: z.boolean().optional()
+      warnOnDangerousCommands: z.boolean().optional()
     })
     .optional()
 });

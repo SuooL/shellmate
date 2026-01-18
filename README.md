@@ -20,11 +20,17 @@ npm install -g shellmate
 ## Quick Start
 
 ```bash
+
 shellmate "Find the 10 largest files in the current directory"
 
 shellmate explain "tar -xzvf file.tar.gz"
 
 git push 2>&1 | shellmate
+
+
+shellmate gen "Find the 10 largest files in the current directory"
+
+shellmate explain "tar -xzvf file.tar.gz"
 
 shellmate fix "ls /missing/path" \
   "ls: cannot access '/missing/path': No such file or directory"
@@ -37,7 +43,6 @@ shellmate <command> [options]
 ```
 
 ### Commands
-
 - `shellmate "..."` – Auto mode (infer generate/explain/fix).
 - `gen` – Generate commands from natural language.
 - `explain` – Explain a command.
@@ -48,7 +53,6 @@ shellmate <command> [options]
 - `--model <name>` – Specify a model (e.g. `gpt-4.1`).
 - `--provider <name>` – Specify a provider (e.g. `openai`).
 - `--config <path>` – Use a specific config file.
-- `--mode <mode>` – Force mode (`auto|generate|fix|explain|refactor|suggest`).
 - `--json` – Output JSON.
 - `--verbose` – Verbose logging.
 
@@ -73,8 +77,7 @@ Example config:
     }
   },
   "safety": {
-    "warnOnDangerousCommands": true,
-    "blockOnVeryDangerous": false
+    "warnOnDangerousCommands": true
   }
 }
 ```

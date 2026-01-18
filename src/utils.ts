@@ -10,3 +10,15 @@ export const readStdin = async (): Promise<string> => {
     process.stdin.resume();
   });
 };
+
+const dangerousPatterns = [/\brm\s+-rf\b/i, /\bdd\b/i, /\bchmod\s+-R\b/i];
+
+export const detectDangerous = (text: string): string[] => {
+  const warnings: string[] = [];
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(text)) {
+      warnings.push(`Detected dangerous command pattern: ${pattern.source}`);
+    }
+  }
+  return warnings;
+};

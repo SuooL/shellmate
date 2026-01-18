@@ -9,7 +9,6 @@ export type Config = {
   providers?: Record<string, ProviderConfig>;
   safety?: {
     warnOnDangerousCommands?: boolean;
-    blockOnVeryDangerous?: boolean;
   };
 };
 
@@ -29,15 +28,4 @@ export type LLMResponse = {
 export type LLMProvider = {
   name: string;
   generate: (prompt: Prompt, options: ModelOptions) => Promise<LLMResponse>;
-};
-
-export type SafetyWarning = {
-  level: "low" | "medium" | "high";
-  message: string;
-};
-
-export type ExecutorResult = {
-  providerName: string;
-  model: string;
-  output: string;
 };
