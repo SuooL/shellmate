@@ -11,21 +11,13 @@ export const readStdin = async (): Promise<string> => {
   });
 };
 
-const dangerousPatterns: Array<{ pattern: RegExp; message: string }> = [
-  { pattern: /\brm\s+-rf\b/i, message: "HIGH RISK: recursive delete (rm -rf)." },
-  { pattern: /\bdd\b/i, message: "HIGH RISK: raw disk write (dd)." },
-  { pattern: /\bmkfs\b/i, message: "HIGH RISK: filesystem creation (mkfs)." },
-  { pattern: /\bchmod\s+-R\b/i, message: "MEDIUM RISK: recursive permissions change." },
-  { pattern: /\bchown\s+-R\b/i, message: "MEDIUM RISK: recursive ownership change." },
-  { pattern: /\bcurl\b.*\|\s*(sh|bash)\b/i, message: "HIGH RISK: piping network data to shell." },
-  { pattern: /\bwget\b.*\|\s*(sh|bash)\b/i, message: "HIGH RISK: piping network data to shell." }
-];
+const dangerousPatterns = [/\brm\s+-rf\b/i, /\bdd\b/i, /\bchmod\s+-R\b/i];
 
 export const detectDangerous = (text: string): string[] => {
   const warnings: string[] = [];
-  for (const entry of dangerousPatterns) {
-    if (entry.pattern.test(text)) {
-      warnings.push(entry.message);
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(text)) {
+      warnings.push(`Detected dangerous command pattern: ${pattern.source}`);
     }
   }
   return warnings;

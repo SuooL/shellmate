@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { loadConfig, resolveConfig } from "./config";
 import { createProvider } from "./providers";
-import { buildPrompt, PromptMode } from "./prompts";
+import { prompts } from "./prompts";
 import { detectDangerous, readStdin } from "./utils";
 import { formatOutput } from "./output";
 
@@ -14,45 +14,16 @@ const logVerbose = (enabled: boolean, message: string) => {
   }
 };
 
-const resolveInput = async (
-  args: string[]
-): Promise<{ input: string; fromStdin: boolean }> => {
+const resolveInput = async (args: string[]): Promise<string> => {
   if (args.length > 0) {
-    return { input: args.join(" ").trim(), fromStdin: false };
+    return args.join(" ").trim();
   }
-  if (process.stdin.isTTY) {
-    return { input: "", fromStdin: false };
-  }
-  const input = await readStdin();
-  return { input, fromStdin: true };
-};
-
-const hasErrorIndicators = (text: string): boolean => {
-  return /(error|failed|permission denied|no such file|not found|traceback)/i.test(text);
-};
-
-const looksLikeCommand = (text: string): boolean => {
-  if (/[|><]/.test(text) || /--\w+/.test(text) || /\s-\w/.test(text)) {
-    return true;
-  }
-  return /^\s*(git|ls|cd|cat|grep|find|tar|curl|wget|docker|npm|yarn|pnpm|node|python|rg|fd|ssh|scp|rsync)\b/i.test(
-    text
-  );
-};
-
-const detectAutoMode = (input: string, fromStdin: boolean): PromptMode => {
-  if (fromStdin || hasErrorIndicators(input)) {
-    return "fix";
-  }
-  if (looksLikeCommand(input)) {
-    return "explain";
-  }
-  return "generate";
+  return await readStdin();
 };
 
 const runWithProvider = async (options: {
   input: string;
-  promptKey: PromptMode;
+  promptKey: keyof typeof prompts;
   providerName?: string;
   model?: string;
   json: boolean;
@@ -68,11 +39,11 @@ const runWithProvider = async (options: {
   logVerbose(options.verbose, `Provider: ${provider.name}`);
   logVerbose(options.verbose, `Model: ${model}`);
 
-  const promptTemplate = buildPrompt(options.promptKey, options.input);
+  const promptTemplate = prompts[options.promptKey];
   const response = await provider.generate(
     {
       system: promptTemplate.system,
-      user: promptTemplate.user
+      user: promptTemplate.user(options.input)
     },
     { model }
   );
@@ -93,7 +64,6 @@ const runWithProvider = async (options: {
 program
   .name("shellmate")
   .description("A cross-platform AI-assisted command line companion.")
-  .alias("sm")
   .option("--model <name>", "Specify a model")
   .option("--provider <name>", "Specify a provider")
   .option("--config <path>", "Specify config path")
@@ -106,7 +76,7 @@ program
   .argument("[intent...]", "Natural language intent")
   .action(async (intent: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const { input } = await resolveInput(intent);
+    const input = await resolveInput(intent);
     if (!input) {
       console.error("No input provided.");
       process.exit(1);
@@ -129,7 +99,7 @@ program
   .argument("[command...]", "Command to explain")
   .action(async (commandParts: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const { input } = await resolveInput(commandParts);
+    const input = await resolveInput(commandParts);
     if (!input) {
       console.error("No command provided.");
       process.exit(1);
@@ -152,7 +122,7 @@ program
   .argument("[context...]", "Command and error output")
   .action(async (context: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const { input } = await resolveInput(context);
+    const input = await resolveInput(context);
     if (!input) {
       console.error("No error context provided.");
       process.exit(1);
@@ -161,28 +131,6 @@ program
     await runWithProvider({
       input,
       promptKey: "fix",
-      providerName: options.provider,
-      model: options.model,
-      json: Boolean(options.json),
-      verbose: Boolean(options.verbose),
-      configPath: options.config
-    });
-  });
-
-program
-  .argument("[input...]", "Auto mode: intent, command, or error output")
-  .action(async (inputArgs: string[]) => {
-    const options = program.opts();
-    const { input, fromStdin } = await resolveInput(inputArgs);
-    if (!input) {
-      console.error("No input provided.");
-      process.exit(1);
-    }
-
-    const mode = detectAutoMode(input, fromStdin);
-    await runWithProvider({
-      input,
-      promptKey: mode,
       providerName: options.provider,
       model: options.model,
       json: Boolean(options.json),

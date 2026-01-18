@@ -20,11 +20,17 @@ npm install -g shellmate
 ## Quick Start
 
 ```bash
+
 shellmate "Find the 10 largest files in the current directory"
 
 shellmate explain "tar -xzvf file.tar.gz"
 
 git push 2>&1 | shellmate
+
+
+shellmate gen "Find the 10 largest files in the current directory"
+
+shellmate explain "tar -xzvf file.tar.gz"
 
 shellmate fix "ls /missing/path" \
   "ls: cannot access '/missing/path': No such file or directory"
@@ -37,7 +43,6 @@ shellmate <command> [options]
 ```
 
 ### Commands
-
 - `shellmate "..."` – Auto mode (infer generate/explain/fix).
 - `gen` – Generate commands from natural language.
 - `explain` – Explain a command.
