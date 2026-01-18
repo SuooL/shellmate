@@ -4,7 +4,8 @@
   "description": "A cross-platform AI-assisted command line companion.",
   "license": "MIT",
   "bin": {
-    "shellmate": "dist/cli.js"
+    "shellmate": "dist/cli.js",
+    "sm": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -8,6 +8,7 @@ Shellmate is a cross-platform AI-assisted command line companion. It converts na
 - **Explain** existing commands with structured breakdowns.
 - **Fix** failed commands by suggesting safer alternatives.
 - **Model-agnostic** provider abstraction (OpenAI included).
+- **Auto mode** to infer generate/explain/fix from a single input.
 - **Safety warnings** for high-risk commands.
 
 ## Installation
@@ -19,6 +20,14 @@ npm install -g shellmate
 ## Quick Start
 
 ```bash
+
+shellmate "Find the 10 largest files in the current directory"
+
+shellmate explain "tar -xzvf file.tar.gz"
+
+git push 2>&1 | shellmate
+
+
 shellmate gen "Find the 10 largest files in the current directory"
 
 shellmate explain "tar -xzvf file.tar.gz"
@@ -34,7 +43,7 @@ shellmate <command> [options]
 ```
 
 ### Commands
-
+- `shellmate "..."` – Auto mode (infer generate/explain/fix).
 - `gen` – Generate commands from natural language.
 - `explain` – Explain a command.
 - `fix` – Suggest fixes for a failed command.
@@ -72,6 +81,14 @@ Example config:
   }
 }
 ```
+
+## Prompts
+
+Prompt templates live in `src/prompts/` and are loaded at runtime. `core.md` contains shared rules, while mode-specific files (`generate.md`, `explain.md`, `fix.md`, etc.) define task-specific behavior.
+
+## Providers
+
+OpenAI is implemented. Additional providers (`claude`, `gemini`, `qwen`, `chatglm`) are registered as stubs to reserve the interface.
 
 ## Development
 
