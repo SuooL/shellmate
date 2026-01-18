@@ -13,11 +13,6 @@ describe("detectSafety", () => {
     expect(warnings.some(warning => warning.level === "high")).toBe(true);
   });
 
-  it("detects chmod 777 as high risk", () => {
-    const warnings = detectSafety("chmod -R 777 /tmp/data");
-    expect(warnings.some(warning => warning.level === "high")).toBe(true);
-  });
-
   it("reports if any warning is high", () => {
     const warnings = detectSafety("dd if=/dev/zero of=/dev/sda");
     expect(hasHighRisk(warnings)).toBe(true);

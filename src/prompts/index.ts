@@ -11,9 +11,6 @@ const modeFiles = {
 } as const;
 
 export type PromptMode = keyof typeof modeFiles;
-export type PromptOptions = {
-  detail?: boolean;
-};
 
 const resolvePromptDir = (): string => {
   const candidates = [
@@ -51,14 +48,12 @@ const loadPrompt = (fileName: string): string => {
   return content;
 };
 
-export const buildPrompt = (mode: PromptMode, input: string, options: PromptOptions = {}): Prompt => {
+export const buildPrompt = (mode: PromptMode, input: string): Prompt => {
   const core = loadPrompt("core.md");
   const modePrompt = loadPrompt(modeFiles[mode]);
-  const detailPrompt =
-    mode === "explain" && options.detail ? `\n\n${loadPrompt("explain_detail.md")}` : "";
 
   return {
-    system: `${core}\n\n${modePrompt}${detailPrompt}`.trim(),
+    system: `${core}\n\n${modePrompt}`.trim(),
     user: input.trim()
   };
 };

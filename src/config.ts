@@ -6,29 +6,16 @@ import { Config } from "./types";
 
 const providerSchema = z.object({
   apiKey: z.string().optional(),
-  baseUrl: z.string().optional(),
-  temperature: z.number().optional(),
-  maxTokens: z.number().optional(),
-  timeoutMs: z.number().optional(),
-  retries: z.number().optional()
+  baseUrl: z.string().optional()
 });
 
 const configSchema = z.object({
   defaultProvider: z.string().optional(),
   defaultModel: z.string().optional(),
-  defaults: z
-    .object({
-      temperature: z.number().optional(),
-      maxTokens: z.number().optional(),
-      timeoutMs: z.number().optional(),
-      retries: z.number().optional()
-    })
-    .optional(),
   providers: z.record(providerSchema).optional(),
   safety: z
     .object({
-      warnOnDangerousCommands: z.boolean().optional(),
-      blockOnVeryDangerous: z.boolean().optional()
+      warnOnDangerousCommands: z.boolean().optional()
     })
     .optional()
 });
