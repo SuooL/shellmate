@@ -11,7 +11,14 @@ export const readStdin = async (): Promise<string> => {
   });
 };
 
-export const copyToClipboard = async (text: string): Promise<void> => {
-  const clipboardy = await import("clipboardy");
-  await clipboardy.write(text);
+const dangerousPatterns = [/\brm\s+-rf\b/i, /\bdd\b/i, /\bchmod\s+-R\b/i];
+
+export const detectDangerous = (text: string): string[] => {
+  const warnings: string[] = [];
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(text)) {
+      warnings.push(`Detected dangerous command pattern: ${pattern.source}`);
+    }
+  }
+  return warnings;
 };
