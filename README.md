@@ -27,7 +27,6 @@ shellmate explain "tar -xzvf file.tar.gz"
 
 git push 2>&1 | shellmate
 
-
 shellmate gen "Find the 10 largest files in the current directory"
 
 shellmate explain "tar -xzvf file.tar.gz"
