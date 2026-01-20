@@ -21,17 +21,17 @@ npm install -g shellmate
 
 ```bash
 
-shellmate "Find the 10 largest files in the current directory"
+shm "Find the 10 largest files in the current directory"
 
-shellmate explain "tar -xzvf file.tar.gz"
+shm explain "tar -xzvf file.tar.gz"
 
-git push 2>&1 | shellmate
+git push 2>&1 | shm
 
-shellmate gen "Find the 10 largest files in the current directory"
+shm gen "Find the 10 largest files in the current directory"
 
-shellmate explain "tar -xzvf file.tar.gz"
+shm explain "tar -xzvf file.tar.gz"
 
-shellmate fix "ls /missing/path" \
+shm fix "ls /missing/path" \
   "ls: cannot access '/missing/path': No such file or directory"
 ```
 
@@ -53,6 +53,9 @@ shellmate <command> [options]
 - `--provider <name>` – Specify a provider (e.g. `openai`).
 - `--config <path>` – Use a specific config file.
 - `--json` – Output JSON.
+- `--mode <mode>` – Force mode: `auto|generate|explain|fix|refactor|suggest`.
+- `--detail` – More detailed explanations (explain mode).
+- `--quiet` – Output only commands.
 - `--verbose` – Verbose logging.
 
 ## Configuration
@@ -63,6 +66,8 @@ Default config location:
 ~/.shellmate/config.json
 ```
 
+If `./config.json` exists in the current working directory, Shellmate will use it by default.
+
 Example config:
 
 ```json
@@ -72,7 +77,8 @@ Example config:
   "providers": {
     "openai": {
       "apiKey": "ENV:OPENAI_API_KEY",
-      "baseUrl": "https://api.openai.com/v1"
+      "baseUrl": "https://api.openai.com/v1",
+      "model": "gpt-4.1"
     }
   },
   "safety": {
@@ -80,6 +86,8 @@ Example config:
   }
 }
 ```
+
+You can also set per-provider models and keep all providers in one file. Custom providers are supported if they expose an OpenAI-compatible API (set `baseUrl` for that provider). See `config.example.json`.
 
 ## Prompts
 

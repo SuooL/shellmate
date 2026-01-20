@@ -6,11 +6,12 @@ type OpenAIConfig = {
 };
 
 export class OpenAIProvider implements LLMProvider {
-  name = "openai";
+  name: string;
   private apiKey?: string;
   private baseUrl: string;
 
-  constructor(config: OpenAIConfig) {
+  constructor(config: OpenAIConfig, name = "openai") {
+    this.name = name;
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl ?? "https://api.openai.com/v1";
   }

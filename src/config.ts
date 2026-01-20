@@ -6,7 +6,8 @@ import { Config } from "./types";
 
 const providerSchema = z.object({
   apiKey: z.string().optional(),
-  baseUrl: z.string().optional()
+  baseUrl: z.string().optional(),
+  model: z.string().optional()
 });
 
 const configSchema = z.object({
@@ -15,15 +16,18 @@ const configSchema = z.object({
   providers: z.record(providerSchema).optional(),
   safety: z
     .object({
-      warnOnDangerousCommands: z.boolean().optional()
+      warnOnDangerousCommands: z.boolean().optional(),
+      blockOnVeryDangerous: z.boolean().optional()
     })
     .optional()
 });
 
 export const defaultConfigPath = path.join(os.homedir(), ".shellmate", "config.json");
+const localConfigPath = path.join(process.cwd(), "config.json");
 
 export const loadConfig = (configPath?: string): Config => {
-  const resolvedPath = configPath ?? defaultConfigPath;
+  const resolvedPath =
+    configPath ?? (fs.existsSync(localConfigPath) ? localConfigPath : defaultConfigPath);
   if (!fs.existsSync(resolvedPath)) {
     return {};
   }

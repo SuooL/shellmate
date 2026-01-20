@@ -1,6 +1,9 @@
 import process from "process";
 
 export const readStdin = async (): Promise<string> => {
+  if (process.stdin.isTTY) {
+    return "";
+  }
   const chunks: Buffer[] = [];
   return new Promise(resolve => {
     process.stdin.on("data", chunk => chunks.push(Buffer.from(chunk)));

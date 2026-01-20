@@ -33,8 +33,10 @@ const checkApiKey = (config: Config, providerName?: string): string => {
   return formatStatus("API key", hasKey, resolvedProvider);
 };
 
-const checkModel = (config: Config, model?: string): string => {
-  const resolvedModel = model ?? config.defaultModel ?? "gpt-4.1";
+const checkModel = (config: Config, providerName?: string, model?: string): string => {
+  const resolvedProvider = providerName ?? config.defaultProvider ?? "openai";
+  const providerConfig = config.providers?.[resolvedProvider];
+  const resolvedModel = model ?? providerConfig?.model ?? config.defaultModel ?? "gpt-4.1";
   return formatStatus("Model", Boolean(resolvedModel), resolvedModel);
 };
 
@@ -74,7 +76,7 @@ export const runConfigDoctor = async (options: DoctorOptions): Promise<string> =
     checkConfigFile(options.configPath),
     checkProvider(config, options.providerName),
     checkApiKey(config, options.providerName),
-    checkModel(config, options.model),
+    checkModel(config, options.providerName, options.model),
     await checkNetwork(config, options.providerName, options.timeoutMs)
   ];
 

@@ -1,0 +1,32 @@
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-4.1",
+  "providers": {
+    "openai": {
+      "apiKey": "ENV:OPENAI_API_KEY",
+      "baseUrl": "https://api.openai.com/v1",
+      "model": "gpt-4.1"
+    },
+    "claude": {
+      "apiKey": "ENV:ANTHROPIC_API_KEY",
+      "model": "claude-3-5-sonnet"
+    },
+    "gemini": {
+      "apiKey": "ENV:GEMINI_API_KEY",
+      "model": "gemini-1.5-pro"
+    },
+    "qwen": {
+      "apiKey": "ENV:DASHSCOPE_API_KEY",
+      "model": "qwen-max"
+    },
+    "chatglm": {
+      "apiKey": "ENV:CHATGLM_API_KEY",
+      "baseUrl": "https://api.chatglm.example/v1",
+      "model": "chatglm-4"
+    }
+  },
+  "safety": {
+    "warnOnDangerousCommands": true,
+    "blockOnVeryDangerous": false
+  }
+}

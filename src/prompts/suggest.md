@@ -1,2 +1,8 @@
 Task: Suggest 1-3 likely next commands based on recent context.
-Provide only commands with short notes if necessary.
+Output only commands, one per line, inside a single fenced code block.
+
+```sh
+command 1
+command 2
+command 3
+```

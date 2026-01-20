@@ -11,6 +11,9 @@ const modeFiles = {
 } as const;
 
 export type PromptMode = keyof typeof modeFiles;
+export type PromptOptions = {
+  detail?: boolean;
+};
 
 const resolvePromptDir = (): string => {
   const candidates = [
@@ -20,7 +23,7 @@ const resolvePromptDir = (): string => {
   ];
 
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
+    if (fs.existsSync(path.join(candidate, "core.md"))) {
       return candidate;
     }
   }
@@ -48,12 +51,15 @@ const loadPrompt = (fileName: string): string => {
   return content;
 };
 
-export const buildPrompt = (mode: PromptMode, input: string): Prompt => {
+export const buildPrompt = (mode: PromptMode, input: string, options?: PromptOptions): Prompt => {
   const core = loadPrompt("core.md");
   const modePrompt = loadPrompt(modeFiles[mode]);
 
+  const detailPrompt =
+    mode === "explain" && options?.detail ? loadPrompt("explain_detail.md") : "";
+
   return {
-    system: `${core}\n\n${modePrompt}`.trim(),
+    system: `${core}\n\n${modePrompt}${detailPrompt ? `\n\n${detailPrompt}` : ""}`.trim(),
     user: input.trim()
   };
 };

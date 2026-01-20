@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { loadConfig, resolveConfig } from "./config";
-import { createProvider } from "./providers";
-import { prompts } from "./prompts";
-import { detectDangerous, readStdin } from "./utils";
-import { formatOutput } from "./output";
+import { detectAutoMode } from "./core/mode";
+import { execute } from "./core/executor";
+import { PromptMode } from "./prompts/index";
+import { readStdin } from "./utils";
 
 const program = new Command();
 
@@ -14,51 +13,59 @@ const logVerbose = (enabled: boolean, message: string) => {
   }
 };
 
-const resolveInput = async (args: string[]): Promise<string> => {
+const resolveInput = async (args: string[]): Promise<{ input: string; fromStdin: boolean }> => {
   if (args.length > 0) {
-    return args.join(" ").trim();
+    return { input: args.join(" ").trim(), fromStdin: false };
   }
-  return await readStdin();
+  const fromStdin = !process.stdin.isTTY;
+  const input = await readStdin();
+  return { input, fromStdin };
 };
 
-const runWithProvider = async (options: {
+const normalizeMode = (value?: string): PromptMode | "auto" | undefined => {
+  if (!value) {
+    return undefined;
+  }
+  switch (value) {
+    case "auto":
+    case "generate":
+    case "explain":
+    case "fix":
+    case "refactor":
+    case "suggest":
+      return value;
+    default:
+      return undefined;
+  }
+};
+
+const runMode = async (options: {
   input: string;
-  promptKey: keyof typeof prompts;
+  mode: PromptMode;
   providerName?: string;
   model?: string;
   json: boolean;
   verbose: boolean;
+  detail: boolean;
+  quiet: boolean;
   configPath?: string;
 }): Promise<void> => {
-  const baseConfig = loadConfig(options.configPath);
-  const config = resolveConfig(baseConfig);
-  const providerName = options.providerName ?? config.defaultProvider ?? "openai";
-  const model = options.model ?? config.defaultModel ?? "gpt-4.1";
-  const provider = createProvider(providerName, config);
-
-  logVerbose(options.verbose, `Provider: ${provider.name}`);
-  logVerbose(options.verbose, `Model: ${model}`);
-
-  const promptTemplate = prompts[options.promptKey];
-  const response = await provider.generate(
-    {
-      system: promptTemplate.system,
-      user: promptTemplate.user(options.input)
-    },
-    { model }
-  );
-
-  const warnings = config.safety?.warnOnDangerousCommands
-    ? detectDangerous(response.text)
-    : [];
-
-  const output = formatOutput({
-    content: response.text,
-    warnings,
-    json: options.json
+  const result = await execute({
+    input: options.input,
+    mode: options.mode,
+    providerName: options.providerName,
+    model: options.model,
+    json: options.json,
+    verbose: options.verbose,
+    detail: options.detail,
+    quiet: options.quiet,
+    configPath: options.configPath
   });
 
-  console.log(output);
+  logVerbose(options.verbose, `Provider: ${result.providerName}`);
+  logVerbose(options.verbose, `Model: ${result.model}`);
+  logVerbose(options.verbose, `Mode: ${options.mode}`);
+  console.log(result.output);
 };
 
 program
@@ -68,7 +75,39 @@ program
   .option("--provider <name>", "Specify a provider")
   .option("--config <path>", "Specify config path")
   .option("--json", "Output JSON")
-  .option("--verbose", "Verbose logging");
+  .option("--verbose", "Verbose logging")
+  .option("--detail", "More detailed explanations")
+  .option("--quiet", "Output only commands")
+  .option("--mode <mode>", "Force mode: auto|generate|explain|fix|refactor|suggest");
+
+program
+  .argument("[input...]", "Auto mode input")
+  .action(async (inputParts: string[]) => {
+    const options = program.opts();
+    const { input, fromStdin } = await resolveInput(inputParts);
+    if (!input) {
+      console.error("No input provided.");
+      process.exit(1);
+    }
+
+    const normalizedMode = normalizeMode(options.mode);
+    const mode =
+      normalizedMode && normalizedMode !== "auto"
+        ? normalizedMode
+        : detectAutoMode(input, fromStdin);
+
+    await runMode({
+      input,
+      mode,
+      providerName: options.provider,
+      model: options.model,
+      json: Boolean(options.json),
+      verbose: Boolean(options.verbose),
+      detail: Boolean(options.detail),
+      quiet: Boolean(options.quiet),
+      configPath: options.config
+    });
+  });
 
 program
   .command("gen")
@@ -76,19 +115,22 @@ program
   .argument("[intent...]", "Natural language intent")
   .action(async (intent: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const input = await resolveInput(intent);
+    const resolved = await resolveInput(intent);
+    const input = resolved.input;
     if (!input) {
       console.error("No input provided.");
       process.exit(1);
     }
 
-    await runWithProvider({
+    await runMode({
       input,
-      promptKey: "generate",
+      mode: "generate",
       providerName: options.provider,
       model: options.model,
       json: Boolean(options.json),
       verbose: Boolean(options.verbose),
+      detail: Boolean(options.detail),
+      quiet: Boolean(options.quiet),
       configPath: options.config
     });
   });
@@ -99,19 +141,22 @@ program
   .argument("[command...]", "Command to explain")
   .action(async (commandParts: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const input = await resolveInput(commandParts);
+    const resolved = await resolveInput(commandParts);
+    const input = resolved.input;
     if (!input) {
       console.error("No command provided.");
       process.exit(1);
     }
 
-    await runWithProvider({
+    await runMode({
       input,
-      promptKey: "explain",
+      mode: "explain",
       providerName: options.provider,
       model: options.model,
       json: Boolean(options.json),
       verbose: Boolean(options.verbose),
+      detail: Boolean(options.detail),
+      quiet: Boolean(options.quiet),
       configPath: options.config
     });
   });
@@ -122,19 +167,22 @@ program
   .argument("[context...]", "Command and error output")
   .action(async (context: string[], cmd: Command) => {
     const options = cmd.parent?.opts() ?? {};
-    const input = await resolveInput(context);
+    const resolved = await resolveInput(context);
+    const input = resolved.input;
     if (!input) {
       console.error("No error context provided.");
       process.exit(1);
     }
 
-    await runWithProvider({
+    await runMode({
       input,
-      promptKey: "fix",
+      mode: "fix",
       providerName: options.provider,
       model: options.model,
       json: Boolean(options.json),
       verbose: Boolean(options.verbose),
+      detail: Boolean(options.detail),
+      quiet: Boolean(options.quiet),
       configPath: options.config
     });
   });
