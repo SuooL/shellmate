@@ -1,12 +1,11 @@
 {
-  "name": "shellmate",
+  "name": "terpilot",
   "version": "0.1.0",
   "description": "A cross-platform AI-assisted command line companion.",
   "license": "MIT",
   "bin": {
-    "shellmate": "dist/cli.js",
-    "sm": "dist/cli.js",
-    "shm": "dist/cli.js"
+    "terpilot": "dist/cli.js",
+    "tep": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

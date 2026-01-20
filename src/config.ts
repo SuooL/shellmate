@@ -22,7 +22,7 @@ const configSchema = z.object({
     .optional()
 });
 
-export const defaultConfigPath = path.join(os.homedir(), ".shellmate", "config.json");
+export const defaultConfigPath = path.join(os.homedir(), ".terpilot", "config.json");
 const localConfigPath = path.join(process.cwd(), "config.json");
 
 export const loadConfig = (configPath?: string): Config => {

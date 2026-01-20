@@ -1,6 +1,6 @@
-# Shellmate
+# Terpilot
 
-Shellmate is a cross-platform AI-assisted command line companion. It converts natural language into shell command suggestions, explains commands, and offers fixes for failed commands. Shellmate never executes commands; it only proposes them for you to review.
+Terpilot is a cross-platform AI-assisted command line companion. It converts natural language into shell command suggestions, explains commands, and offers fixes for failed commands. Terpilot never executes commands; it only proposes them for you to review.
 
 ## Features
 
@@ -14,35 +14,35 @@ Shellmate is a cross-platform AI-assisted command line companion. It converts na
 ## Installation
 
 ```bash
-npm install -g shellmate
+npm install -g terpilot
 ```
 
 ## Quick Start
 
 ```bash
 
-shm "Find the 10 largest files in the current directory"
+tep "Find the 10 largest files in the current directory"
 
-shm explain "tar -xzvf file.tar.gz"
+tep explain "tar -xzvf file.tar.gz"
 
-git push 2>&1 | shm
+git push 2>&1 | tep
 
-shm gen "Find the 10 largest files in the current directory"
+tep gen "Find the 10 largest files in the current directory"
 
-shm explain "tar -xzvf file.tar.gz"
+tep explain "tar -xzvf file.tar.gz"
 
-shm fix "ls /missing/path" \
+tep fix "ls /missing/path" \
   "ls: cannot access '/missing/path': No such file or directory"
 ```
 
 ## CLI Reference
 
 ```bash
-shellmate <command> [options]
+terpilot <command> [options]
 ```
 
 ### Commands
-- `shellmate "..."` – Auto mode (infer generate/explain/fix).
+- `terpilot "..."` – Auto mode (infer generate/explain/fix).
 - `gen` – Generate commands from natural language.
 - `explain` – Explain a command.
 - `fix` – Suggest fixes for a failed command.
@@ -63,10 +63,10 @@ shellmate <command> [options]
 Default config location:
 
 ```
-~/.shellmate/config.json
+~/.terpilot/config.json
 ```
 
-If `./config.json` exists in the current working directory, Shellmate will use it by default.
+If `./config.json` exists in the current working directory, Terpilot will use it by default.
 
 Example config:
 
@@ -106,4 +106,4 @@ npm run build
 
 ## Safety
 
-Shellmate will warn when model output appears to include risky commands such as `rm -rf`, `dd`, or `chmod -R`. It never executes any command automatically.
+Terpilot will warn when model output appears to include risky commands such as `rm -rf`, `dd`, or `chmod -R`. It never executes any command automatically.

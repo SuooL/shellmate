@@ -69,7 +69,7 @@ const runMode = async (options: {
 };
 
 program
-  .name("shellmate")
+  .name("terpilot")
   .description("A cross-platform AI-assisted command line companion.")
   .option("--model <name>", "Specify a model")
   .option("--provider <name>", "Specify a provider")
