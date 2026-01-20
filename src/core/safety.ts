@@ -5,7 +5,6 @@ const safetyRules: Array<{ pattern: RegExp; level: SafetyWarning["level"]; messa
   { pattern: /\bdd\b/i, level: "high", message: "HIGH RISK: raw disk write (dd)." },
   { pattern: /\bmkfs\b/i, level: "high", message: "HIGH RISK: filesystem creation (mkfs)." },
   { pattern: /\bchmod\s+-R\b/i, level: "medium", message: "MEDIUM RISK: recursive permissions change." },
-  { pattern: /\bchmod\s+-R\s+777\b/i, level: "high", message: "HIGH RISK: recursive chmod 777." },
   { pattern: /\bchown\s+-R\b/i, level: "medium", message: "MEDIUM RISK: recursive ownership change." },
   { pattern: /\bcurl\b.*\|\s*(sh|bash)\b/i, level: "high", message: "HIGH RISK: piping network data to shell." },
   { pattern: /\bwget\b.*\|\s*(sh|bash)\b/i, level: "high", message: "HIGH RISK: piping network data to shell." },
